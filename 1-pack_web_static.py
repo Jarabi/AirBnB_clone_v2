@@ -25,8 +25,12 @@ def do_pack():
         local('mkdir -p ./versions')
 
         # Create archive
-        local(f"tar -cvf {archive_name} ./web_static")
+        local(f"tar -czvf {archive_name} ./web_static")
 
         return archive_name
     except Exception:
         return None
+
+
+if __name__ == "__main__":
+    do_pack()
