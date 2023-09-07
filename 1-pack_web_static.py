@@ -18,9 +18,6 @@ def do_pack():
     # Archive name
     archive_name = f"versions/web_static_{current_time}.tgz"
 
-    # Create 'versions' directory if it doesn't exist
-    local("mkdir -p ./versions")
-
     # Create archive
     local(f"tar -cvf {archive_name} ./web_static")
 
