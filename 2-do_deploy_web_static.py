@@ -2,7 +2,7 @@
 """
 Fabric script that distributes an archive to web servers
 """
-from fabric.api import run, put, env
+from fabric.api import run, put, env, sudo
 import os
 
 # Define hosts and user
@@ -22,7 +22,7 @@ def do_deploy(archive_path):
         False: If any operation fails, like if archive_path doesn't exist
     """
     # Make sure archive path exists
-    if not os.path.exists(archive_path):
+    if os.path.isfile(archive_path) is False:
         return False
 
     try:
@@ -58,6 +58,8 @@ def do_deploy(archive_path):
 
         # Create new symbolic link (/data/web_static/current)
         run(f"ln -s {extract_path}/ /data/web_static/current")
+
+        print("New version deployed!")
 
         return True
     except Exception:
