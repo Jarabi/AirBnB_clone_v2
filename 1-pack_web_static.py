@@ -18,7 +18,15 @@ def do_pack():
     # Archive name
     archive_name = f"versions/web_static_{current_time}.tgz"
 
-    # Create archive
-    local(f"tar -cvf {archive_name} ./web_static")
+    try:
+        print(f"Packing web_static to {archive_name}")
 
-    return archive_name
+        # Create versions directory (if it does not exist)
+        local('mkdir -p ./versions')
+
+        # Create archive
+        local(f"tar -cvf {archive_name} ./web_static")
+
+        return archive_name
+    except Exception:
+        return None
