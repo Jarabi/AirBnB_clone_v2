@@ -2,7 +2,8 @@
 """
 Fabric script that distributes an archive to web servers
 """
-from fabric.api import run, put, env, sudo
+from fabric.api import run, put, env
+from fabric.contrib import files
 import os
 
 # Define hosts and user
@@ -45,19 +46,20 @@ def do_deploy(archive_path):
         run(f"tar -xzf /tmp/{archive_file} -C {extract_path}/")
 
         # Delete the archive from remote server
-        run(f"rm /tmp/{archive_file}")
+        run(f"sudo rm /tmp/{archive_file}")
 
         # Move extracted content to new folder
-        run(f"mv {extract_path}/web_static/* {extract_path}/")
+        if files.exists(extract_path) is False:
+            run(f"mv {extract_path}/web_static/* {extract_path}/")
 
         # Remove extracted folder (web_static) in remote server
-        run(f"rm -rf {extract_path}/web_static")
+        run(f"sudo rm -rf {extract_path}/web_static")
 
         # Delete symbolic link (/data/web_static/current) from remote server
-        run('rm -rf /data/web_static/current')
+        run('sudo rm -rf /data/web_static/current')
 
         # Create new symbolic link (/data/web_static/current)
-        run(f"ln -s {extract_path}/ /data/web_static/current")
+        run(f"sudo ln -s {extract_path}/ /data/web_static/current")
 
         print("New version deployed!")
 
