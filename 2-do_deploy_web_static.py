@@ -8,9 +8,6 @@ import os
 # Define hosts
 env.hosts = ['54.166.147.155', '54.237.127.172']
 
-# Define remote login user
-env.user = "ubuntu"
-
 
 def do_deploy(archive_path):
     """
@@ -64,7 +61,3 @@ def do_deploy(archive_path):
         return True
     except Exception:
         return False
-
-
-if __name__ == "__main__":
-    do_deploy(archive_path)
