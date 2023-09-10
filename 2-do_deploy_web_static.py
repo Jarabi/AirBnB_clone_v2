@@ -2,8 +2,7 @@
 """
 Fabric script that distributes an archive to web servers
 """
-from fabric.api import run, put, env
-from fabric.contrib import files
+from fabric.api import run, put, env, sudo
 import os
 
 # Define hosts and user
@@ -23,7 +22,7 @@ def do_deploy(archive_path):
         False: If any operation fails, like if archive_path doesn't exist
     """
     # Make sure archive path exists
-    if os.path.isfile(archive_path) is False:
+    if not os.path.isfile(archive_path):
         return False
 
     try:
@@ -37,29 +36,55 @@ def do_deploy(archive_path):
         extract_path = f"/data/web_static/releases/{folder}"
 
         # Upload the archive to /tmp/ folder of remote server
-        put(archive_path, f"/tmp/{archive_file}")
+        upload = put(archive_path, '/tmp/')
+
+        # Check if upload failed
+        if upload.failed:
+            return False
 
         # Create folder in remote server
-        run(f"mkdir -p {extract_path}")
+        create = run(f"mkdir -p {extract_path}")
+
+        # Check folder creation
+        if create.failed:
+            return False
 
         # Uncompress the archive to the folder /data/web_static/releases
-        run(f"tar -xzf /tmp/{archive_file} -C {extract_path}/")
+        extract = run(f"tar -xzf /tmp/{archive_file} -C {extract_path}/")
+
+        # Check if extraction failed
+        if extract.failed:
+            return False
 
         # Delete the archive from remote server
-        run(f"sudo rm /tmp/{archive_file}")
+        del_archive = run(f"sudo rm /tmp/{archive_file}")
+
+        if del_archive.failed:
+            return False
 
         # Move extracted content to new folder
-        if files.exists(extract_path) is False:
-            run(f"mv {extract_path}/web_static/* {extract_path}/")
+        move_extracted = run(f"mv {extract_path}/web_static/* {extract_path}/")
+
+        if move_extracted.failed:
+            return False
 
         # Remove extracted folder (web_static) in remote server
-        run(f"sudo rm -rf {extract_path}/web_static")
+        del_folder = run(f"sudo rm -rf {extract_path}/web_static")
+
+        if del_folder.failed:
+            return False
 
         # Delete symbolic link (/data/web_static/current) from remote server
-        run('sudo rm -rf /data/web_static/current')
+        del_sym = run('sudo rm -rf /data/web_static/current')
+
+        if del_sym.failed:
+            return False
 
         # Create new symbolic link (/data/web_static/current)
-        run(f"sudo ln -s {extract_path}/ /data/web_static/current")
+        new_sym = run(f"sudo ln -s {extract_path}/ /data/web_static/current")
+
+        if new_sym.failed:
+            return False
 
         print("New version deployed!")
 
