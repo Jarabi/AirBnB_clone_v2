@@ -1,5 +1,7 @@
-.gitignore
 __pycache__/
+W3C-Validator/
 commit
+run_flask
 file.json
-test_0
+versions/
+.gitignore
