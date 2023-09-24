@@ -39,23 +39,29 @@ class DBStorage:
         self.__session = Session()
 
     def all(self, cls=None):
-        '''Retrieve all objects or individual class objects'''
-
-        my_classes = [User, State, City, Amenity, Place, Review]
-
-        dictionary = {}
-
-        if cls is not None:
-            for value in self.__session.query(cls).all():
-                key = '{}.{}'.format(value.__class__.__name__, value.id)
-                dictionary[key] = value
+        """query on the current database session (self.__session) all
+        objects depending of the class name (argument cls)
+        """
+        objs = {}
+        if cls is None:
+            cls_objects = {
+                    'State': State,
+                    'City': City,
+                    'User': User,
+                    'Place': Place,
+                    'Review': Review
+                    }
         else:
-            for clas in my_classes:
-                for value in self.__session.query(clas).all():
-                    key = '{}.{}'.format(value.__class__.__name__, value.id)
-                    dictionary[key] = value
-
-        return dictionary
+            print(f"=== cls passed to all {cls} ===")
+            cls_objects = [cls]
+        for key in cls_objects.keys():
+            rows = self.__session.query(cls_objects[key]).all()
+            # print(f" ===== rows: {rows} ======")
+            for row in rows:
+                # print(f" ======= {key.split('.')[0]}: {key} ====== ")
+                key = f"{key.split('.')[0]}.{cls_objects[key.split('.')[0]]}"
+                objs[key] = row
+        return objs
 
     def new(self, obj):
         """add the object to the current database session"""
@@ -82,4 +88,4 @@ class DBStorage:
         """
         Calls remove() method on the private session attribute
         """
-        self.__session.close()
+        self.__session.remove()
