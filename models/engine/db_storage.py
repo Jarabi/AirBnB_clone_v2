@@ -15,7 +15,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 class DBStorage:
     """class definition for db storage engine"""
-    __enigne = None
+    __engine = None
     __session = None
 
     def __init__(self):
